@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Opsat Livrente - Formel Forklaring</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 100vh;
+            max-height: 900px;
+        }
+        
+        .left-panel, .right-panel {
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .formula-box {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007acc;
+        }
+        
+        .calculation-box {
+            background: #e8f4f8;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .math {
+            font-family: 'Times New Roman', serif;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .controls {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .controls label {
+            display: block;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        
+        .controls input {
+            width: 100%;
+            padding: 5px;
+            margin: 2px 0 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        
+        .result {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #155724;
+            margin: 10px 0;
+        }
+        
+        h1 { font-size: 24px; margin: 10px 0; }
+        h2 { font-size: 18px; margin: 8px 0; color: #007acc; }
+        h3 { font-size: 16px; margin: 6px 0; }
+        
+        .timeline {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        
+        sub { font-size: 12px; }
+        sup { font-size: 12px; }
+        
+        .step {
+            margin: 8px 0;
+            padding: 8px;
+            background: #ffffff;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h1>Opsat Livrente - Formler</h1>
+            
+            <div class="formula-box">
+                <h2>Grundformel</h2>
+                <div class="math">
+                    ₙ|ä<sub>x</sub> = v<sup>n</sup> · ₚ<sub>x</sub><sup>n</sup> · ä<sub>x+n</sub>
+                </div>
+                <p><strong>Hvor:</strong></p>
+                <ul>
+                    <li>ₙ|ä<sub>x</sub> = Opsat livrente (n års udsættelse)</li>
+                    <li>v<sup>n</sup> = Diskonteringsfaktor over n år</li>
+                    <li>ₚ<sub>x</sub><sup>n</sup> = Sandsynlighed for at overleve n år</li>
+                    <li>ä<sub>x+n</sub> = Umiddelbar livrente ved alder x+n</li>
+                </ul>
+            </div>
+            
+            <div class="formula-box">
+                <h2>Kommutationsfunktioner</h2>
+                <div class="math">
+                    ₙ|ä<sub>x</sub> = N<sub>x+n</sub> / D<sub>x</sub>
+                </div>
+                <p><strong>Hvor:</strong></p>
+                <ul>
+                    <li>N<sub>x+n</sub> = Σ D<sub>x+n+k</sub> for k=0 til ∞</li>
+                    <li>D<sub>x</sub> = v<sup>x</sup> · l<sub>x</sub></li>
+                    <li>v = 1/(1+i) = Diskonteringsfaktor</li>
+                    <li>l<sub>x</sub> = Antal overlevende ved alder x</li>
+                </ul>
+            </div>
+            
+            <div class="formula-box">
+                <h2>Detaljerede Formler</h2>
+                <div class="math">
+                    v = 1/(1+i)
+                </div>
+                <div class="math">
+                    D<sub>x</sub> = v<sup>x</sup> · l<sub>x</sub>
+                </div>
+                <div class="math">
+                    N<sub>x</sub> = Σ<sub>k=0</sub><sup>∞</sup> D<sub>x+k</sub>
+                </div>
+                <div class="math">
+                    ₚ<sub>x</sub><sup>n</sup> = l<sub>x+n</sub> / l<sub>x</sub>
+                </div>
+            </div>
+            
+            <div class="timeline">
+                <h3>Tidslinje</h3>
+                <pre>
+Alder x    Alder x+n    Død
+    |          |         |
+    |<---n år--->|       |
+    |          |         |
+Ingen      Årlige udbetalinger
+udbetaling    starter her
+</pre>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="controls">
+                <h2>Parametre</h2>
+                <label for="age">Nuværende alder (x):</label>
+                <input type="number" id="age" min="0" max="100" value="50">
+                
+                <label for="defer">Udsættelsesperiode (n år):</label>
+                <input type="number" id="defer" min="0" max="50" value="15">
+                
+                <label for="interest">Teknisk rente (i):</label>
+                <input type="range" id="interest" min="1" max="10" step="0.1" value="4">
+                <span id="interest-value">4%</span>
+            </div>
+            
+            <div class="result">
+                <h2>Beregningsresultat</h2>
+                <div id="main-result">Beregner...</div>
+            </div>
+            
+            <div class="calculation-box">
+                <h2>Detaljerede Beregninger</h2>
+                <div id="calculations">
+                    <div class="step">
+                        <strong>Trin 1: Grunddata</strong>
+                        <div id="step1">Beregner...</div>
+                    </div>
+                    
+                    <div class="step">
+                        <strong>Trin 2: Diskonteringsfaktor</strong>
+                        <div id="step2">Beregner...</div>
+                    </div>
+                    
+                    <div class="step">
+                        <strong>Trin 3: Overlevelsessandsynlighed</strong>
+                        <div id="step3">Beregner...</div>
+                    </div>
+                    
+                    <div class="step">
+                        <strong>Trin 4: Kommutationsfunktioner</strong>
+                        <div id="step4">Beregner...</div>
+                    </div>
+                    
+                    <div class="step">
+                        <strong>Trin 5: Slutresultat</strong>
+                        <div id="step5">Beregner...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simpel mortalitetsmodel for demonstration
+        const omega = 105;
+        const l = new Array(omega + 1);
+        
+        // Lineær mortalitetsmodel (forenklet)
+        for (let age = 0; age <= omega; age++) {
+            l[age] = Math.max(0, omega - age);
+        }
+        
+        function computeDetailedAnnuity(x, n, i) {
+            x = parseInt(x);
+            n = parseInt(n);
+            i = parseFloat(i) / 100;
+            
+            if (isNaN(x) || isNaN(n) || isNaN(i) || x < 0 || n < 0 || x + n > omega) {
+                return { error: "Ugyldige værdier" };
+            }
+            
+            // Grundlæggende beregninger
+            const v = 1 / (1 + i);
+            const startAge = x + n;
+            const survivalProb = l[startAge] / l[x];
+            
+            // Kommutationsfunktioner
+            const Dx = Math.pow(v, x) * l[x];
+            const Dxpn = Math.pow(v, startAge) * l[startAge];
+            
+            // Beregn N_{x+n}
+            let Nxpn = 0;
+            for (let k = 0; k <= omega - startAge; k++) {
+                Nxpn += Math.pow(v, startAge + k) * l[startAge + k];
+            }
+            
+            // Opsat livrente værdi
+            const deferredAnnuity = Nxpn / Dx;
+            
+            return {
+                x: x,
+                n: n,
+                i: i,
+                v: v,
+                survivalProb: survivalProb,
+                Dx: Dx,
+                Dxpn: Dxpn,
+                Nxpn: Nxpn,
+                result: deferredAnnuity
+            };
+        }
+        
+        function updateCalculations() {
+            const x = document.getElementById('age').value;
+            const n = document.getElementById('defer').value;
+            const i = document.getElementById('interest').value;
+            
+            document.getElementById('interest-value').textContent = i + '%';
+            
+            const calc = computeDetailedAnnuity(x, n, i);
+            
+            if (calc.error) {
+                document.getElementById('main-result').textContent = calc.error;
+                return;
+            }
+            
+            // Hovedresultat
+            document.getElementById('main-result').innerHTML = `
+                <strong>Opsat livrente værdi: ${calc.result.toFixed(6)}</strong><br>
+                <em>For en person på ${calc.x} år med ${calc.n} års udsættelse ved ${(calc.i*100).toFixed(1)}% rente</em>
+            `;
+            
+            // Detaljerede trin
+            document.getElementById('step1').innerHTML = `
+                x = ${calc.x} år (nuværende alder)<br>
+                n = ${calc.n} år (udsættelsesperiode)<br>
+                i = ${(calc.i*100).toFixed(1)}% = ${calc.i.toFixed(4)} (teknisk rente)
+            `;
+            
+            document.getElementById('step2').innerHTML = `
+                v = 1/(1+i) = 1/(1+${calc.i.toFixed(4)}) = ${calc.v.toFixed(6)}<br>
+                <em>Diskonteringsfaktor per år</em>
+            `;
+            
+            document.getElementById('step3').innerHTML = `
+                <sub>n</sub>p<sub>x</sub> = l<sub>${calc.x + calc.n}</sub> / l<sub>${calc.x}</sub> = ${l[calc.x + calc.n]} / ${l[calc.x]} = ${calc.survivalProb.toFixed(6)}<br>
+                <em>Sandsynlighed for at overleve ${calc.n} år</em>
+            `;
+            
+            document.getElementById('step4').innerHTML = `
+                D<sub>${calc.x}</sub> = v<sup>${calc.x}</sup> × l<sub>${calc.x}</sub> = ${calc.v.toFixed(6)}<sup>${calc.x}</sup> × ${l[calc.x]} = ${calc.Dx.toFixed(6)}<br>
+                D<sub>${calc.x + calc.n}</sub> = v<sup>${calc.x + calc.n}</sup> × l<sub>${calc.x + calc.n}</sub> = ${calc.Dxpn.toFixed(6)}<br>
+                N<sub>${calc.x + calc.n}</sub> = Σ D<sub>k</sub> for k≥${calc.x + calc.n} = ${calc.Nxpn.toFixed(6)}
+            `;
+            
+            document.getElementById('step5').innerHTML = `
+                <sub>n</sub>|ä<sub>x</sub> = N<sub>${calc.x + calc.n}</sub> / D<sub>${calc.x}</sub><br>
+                = ${calc.Nxpn.toFixed(6)} / ${calc.Dx.toFixed(6)}<br>
+                = <strong>${calc.result.toFixed(6)}</strong>
+            `;
+        }
+        
+        // Initial beregning
+        updateCalculations();
+        
+        // Live opdatering
+        document.getElementById('age').addEventListener('input', updateCalculations);
+        document.getElementById('defer').addEventListener('input', updateCalculations);
+        document.getElementById('interest').addEventListener('input', updateCalculations);
+    </script>
+</body>
+</html>

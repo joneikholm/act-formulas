@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Opsat livrente</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a href="index.html">&lt; Tilbage til oversigt</a>
+    <h1>211. Opsat livrente</h1>
+    
+    <h2>Forsikringsbegivenhed:</h2>
+    <p>Forsikredes overlevelse af det aftalte udløbstidspunkt</p>
+    
+    <h2>Virkemåde ved død i perioden indtil alder x + n</h2>
+    <pre>
+x               dad             x + n
+--------------------------------------&gt;
+
+Ingen udbetaling
+    </pre>
+    
+    <h2>Virkemåde ved overlevelse af alder x + n</h2>
+    <pre>
+x               x + n           død
+--------------------------------------&gt;
+                hværlig årlig udbetaling
+                o o o o o o o 
+    </pre>
+    
+    <h2>Formel for passiv:</h2>
+    <p>N<sub>x+n</sub> / D<sub>x</sub></p>
+    
+    <h2>Tabellerede størrelser:</h2>
+    <p>Premie og passiv kan for udløb 18 år -67 år findes i bind I, 18 -93. For udløb 68 år -80 år findes passiv i bind I, 94 -106. N<sub>x</sub> og D<sub>x</sub> findes i bind I, 14-15.</p>
+    
+    <h2>Begrænsninger i tegningsmuligheder:</h2>
+    <p>Ingen</p>
+    
+    <h2>Virkemåde:</h2>
+    <p>Fra det aftalte pensioneringstidspunkt udbetales en årlig rente, sålænge forsikrede er i live.</p>
+    
+    <hr>
+    
+    <h2>Interaktiv demonstration</h2>
+    <p>Ændr parametre for at se live-opdateret værdi af opsat livrente (baseret på en simpel mortalitetsmodel for illustration).</p>
+    
+    <label for="age">Alder x:</label>
+    <input type="number" id="age" min="0" max="100" value="50">
+    
+    <label for="defer">Udsættelsesperiode n (år):</label>
+    <input type="number" id="defer" min="0" max="50" value="15">
+    
+    <label for="interest">Teknisk rente (%):</label>
+    <input type="range" id="interest" min="1" max="10" step="0.1" value="4">
+    <span id="interest-value">4%</span>
+    
+    <h3>Resultat:</h3>
+    <div id="result">Beregner...</div>
+    
+    <script>
+        // Simpel mortalitetsmodel (lineær for enkelhed)
+        const omega = 105;
+        const l = new Array(omega + 1);
+        for (let age = 0; age <= omega; age++) {
+            l[age] = omega - age;
+        }
+        
+        // Funktion til beregning af opsat livrente-værdi
+        function computeDeferredAnnuity(x, n, i) {
+            x = parseInt(x);
+            n = parseInt(n);
+            i = parseFloat(i);
+            
+            if (isNaN(x) || isNaN(n) || isNaN(i) || x < 0 || n < 0 || x + n > omega) {
+                return "Ugyldige værdier – prøv igen.";
+            }
+            
+            const v = 1 / (1 + i / 100);
+            let sum = 0;
+            const startAge = x + n;
+            for (let k = 0; k <= omega - startAge; k++) {
+                sum += Math.pow(v, k) * l[startAge + k];
+            }
+            const annuity = Math.pow(v, n) * sum / l[x];
+            return annuity.toFixed(4);
+        }
+        
+        // Opdater resultat live
+        function updateResult() {
+            const x = document.getElementById('age').value;
+            const n = document.getElementById('defer').value;
+            const i = document.getElementById('interest').value;
+            document.getElementById('interest-value').textContent = i + '%';
+            const result = computeDeferredAnnuity(x, n, i);
+            document.getElementById('result').textContent = `Værdi af opsat livrente (N_{x+n} / D_x): ${result}`;
+        }
+        
+        // Initial beregning
+        updateResult();
+        
+        // Lyt til ændringer (live update)
+        document.getElementById('age').addEventListener('input', updateResult);
+        document.getElementById('defer').addEventListener('input', updateResult);
+        document.getElementById('interest').addEventListener('input', updateResult);
+    </script>
+</body>
+</html>
