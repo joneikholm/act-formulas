@@ -4,462 +4,87 @@
     <meta charset="UTF-8">
     <title>Opsat Livrente - Computational Flow</title>
     <style>
+        :root {
+            --blue: #007acc; --green: #28a745; --yellow: #fff3cd; --gray: #f8f9fa; --dark: #2c3e50;
+            --border: #e9ecef; --muted: #495057; --serif: 'Times New Roman', serif; --mono: 'Courier New', monospace;
+        }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: Arial, sans-serif;
-            background: #f8f9fa;
-            padding: 20px;
-            height: 100vh;
-            max-height: 1100px;
-            overflow: hidden;
+            font-family: Arial, sans-serif; background: var(--gray); padding: 20px; height: 100vh; max-height: 1100px; overflow: hidden;
         }
         
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+        .main-container { max-width: 1400px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 28px; color: var(--dark); margin-bottom: 5px; }
         
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .controls { background: var(--yellow); margin-bottom: 20px; display: flex; justify-content: center; gap: 30px; align-items: center; padding: 15px; border-radius: 8px; }
+        .control-group { display: flex; flex-direction: column; align-items: center; }
+        .control-group label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        .control-group input { padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; width: 80px; text-align: center; }
+        .control-group input[type="range"] { width: 120px; }
         
-        .header h1 {
-            font-size: 28px;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
+        .flow-container { flex: 1; position: relative; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .formula-chain, .value-chain { display: flex; justify-content: space-between; align-items: center; height: 140px; margin-bottom: 40px; position: relative; }
+        .value-chain { margin-top: -12px; }
+        .formula-chain { margin-top: 20px; }
         
-        .controls {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            align-items: center;
-        }
+        .chain-box { border-radius: 8px; padding: 15px; min-width: 180px; text-align: center; position: relative; transition: all 0.2s ease; height: 100px; display: flex; align-items: center; justify-content: center; }
+        .formula-box { border: 2px solid var(--blue); background: #f0f8ff; }
+        .value-box { border: 2px solid var(--green); background: #f0fff0; }
+        .chain-box:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .math { font-family: var(--serif); font-size: 18px; font-weight: bold; color: var(--dark); }
+        .value { font-family: var(--mono); font-size: 14px; font-weight: bold; color: #155724; line-height: 1.3; }
+        .value-formula { font-size: 13px; margin-bottom: 5px; }
+        .value-result { font-size: 16px; color: #0d4c1a; }
         
-        .control-group label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
+        .highlighted { background: var(--yellow) !important; border-color: #ffc107 !important; transform: scale(1.05); }
+        .symbol { cursor: pointer; transition: all 0.2s ease; padding: 1px 2px; border-radius: 2px; }
+        .symbol:hover { background: var(--yellow); }
+        .symbol.highlighted { background: #ffc107 !important; color: #212529 !important; font-weight: bold; }
         
-        .control-group input {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 80px;
-            text-align: center;
-        }
+        .arrow { position: absolute; top: 50%; left: 100%; transform: translateY(-50%); width: calc(((100vw - 60px) / 5) - 180px); min-width: 20px; max-width: 60px; height: 2px; background: #6c757d; z-index: 1; margin: 0 10px; }
+        .arrow::after { content: ''; position: absolute; right: -8px; top: -4px; border: 5px solid transparent; border-left: 8px solid #6c757d; }
         
-        .control-group input[type="range"] {
-            width: 120px;
-        }
+        .vertical-connector { position: absolute; transform: translateX(-50%); width: 60px; height: 48px; z-index: 1; background: linear-gradient(180deg, rgba(0, 122, 204, 0.15) 0%, rgba(40, 167, 69, 0.15) 100%); clip-path: polygon(30% 0%, 70% 0%, 70% 70%, 100% 70%, 50% 100%, 0% 70%, 30% 70%); border-radius: 2px; }
         
-        .flow-container {
-            flex: 1;
-            position: relative;
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        .result-section { background: #d4edda; border: 2px solid #155724; border-radius: 10px; padding: 20px; text-align: center; margin-top: 20px; }
+        .result-section h2 { color: #155724; margin-bottom: 10px; }
+        .final-result { font-size: 24px; font-weight: bold; color: #155724; font-family: var(--mono); }
         
-        .formula-chain, .value-chain {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 140px;
-            margin-bottom: 40px;
-            position: relative;
-        }
+        sub, sup { font-size: 12px; }
         
-        .value-chain {
-            margin-bottom: 40px;
-            margin-top: -12px;
-        }
+        .legend { background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; font-size: 12px; border: 1px solid #ccc; display: flex; gap: 30px; align-items: flex-start; }
+        .legend-column { display: flex; flex-direction: column; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+        .legend-color { width: 15px; height: 15px; border-radius: 3px; margin-right: 8px; }
         
-        .formula-chain {
-            margin-top: 20px;
-        }
+        .computed-variables { background: #e8f4f8; border: 2px solid #17a2b8; border-radius: 10px; padding: 20px; margin: 20px 0; font-size: 14px; line-height: 1.4; }
+        .computed-variables h3 { color: #0c5460; margin: 0 0 15px 0; font-size: 16px; }
+        .variables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .variable-item { display: flex; align-items: flex-start; gap: 10px; }
+        .variable-symbol { font-family: var(--serif); font-weight: bold; font-size: 16px; color: #0c5460; min-width: 40px; }
+        .variable-description { color: var(--muted); }
         
-        .chain-box {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            min-width: 180px;
-            text-align: center;
-            position: relative;
-            transition: all 0.3s ease;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .popup { position: absolute; background: white; border: 2px solid var(--blue); border-radius: 8px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 1000; font-size: 12px; line-height: 1.3; min-width: 200px; max-width: 400px; max-height: 300px; overflow-y: auto; pointer-events: none; opacity: 0; transform: translateY(10px); transition: all 0.2s ease; }
+        .popup.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .popup h4 { color: var(--blue); margin: 0 0 10px 0; font-size: 14px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
         
-        .formula-box {
-            border-color: #007acc;
-            background: #f0f8ff;
-        }
+        .calculation-detail { font-family: var(--mono); margin: 5px 0; padding: 5px 10px; background: var(--gray); border-radius: 5px; border-left: 3px solid var(--blue); }
+        .calculation-sum { font-weight: bold; color: #155724; border-top: 2px solid var(--green); padding: 10px; margin-top: 10px; font-size: 16px; background: #d4edda; border-radius: 5px; }
         
-        .value-box {
-            border-color: #28a745;
-            background: #f0fff0;
-        }
+        .more-button { position: absolute; bottom: 5px; right: 5px; background: var(--blue); color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 10px; cursor: pointer; transition: all 0.2s ease; z-index: 10; }
+        .more-button:hover { background: #0056b3; transform: scale(1.05); }
         
-        .chain-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .math {
-            font-family: 'Times New Roman', serif;
-            font-size: 18px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        
-        .value {
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            font-weight: bold;
-            color: #155724;
-            line-height: 1.3;
-        }
-        
-        .value-formula {
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-        
-        .value-result {
-            font-size: 16px;
-            color: #0d4c1a;
-        }
-        
-        .highlighted {
-            background: #fff3cd !important;
-            border-color: #ffc107 !important;
-            transform: scale(1.05);
-        }
-        
-        .symbol {
-            cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 1px 2px;
-            border-radius: 2px;
-        }
-        
-        .symbol:hover {
-            background: #fff3cd;
-        }
-        
-        .symbol.highlighted {
-            background: #ffc107 !important;
-            color: #212529 !important;
-            font-weight: bold;
-        }
-        
-        .chain-box {
-            position: relative;
-        }
-        
-        .arrow {
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            transform: translateY(-50%);
-            width: calc(((100vw - 60px) / 5) - 180px);
-            min-width: 20px;
-            max-width: 60px;
-            height: 2px;
-            background: #6c757d;
-            z-index: 1;
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-        
-        .arrow::after {
-            content: '';
-            position: absolute;
-            right: -8px;
-            top: -4px;
-            width: 0;
-            height: 0;
-            border: 5px solid transparent;
-            border-left: 8px solid #6c757d;
-        }
-        
-        .vertical-connector {
-            position: absolute;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 48px;
-            z-index: 1;
-            background: linear-gradient(180deg, 
-                rgba(0, 122, 204, 0.15) 0%, 
-                rgba(40, 167, 69, 0.15) 100%);
-            clip-path: polygon(30% 0%, 70% 0%, 70% 70%, 100% 70%, 50% 100%, 0% 70%, 30% 70%);
-            border-radius: 2px;
-        }
-        
-        .result-section {
-            background: #d4edda;
-            border: 2px solid #155724;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .result-section h2 {
-            color: #155724;
-            margin-bottom: 10px;
-        }
-        
-        .final-result {
-            font-size: 24px;
-            font-weight: bold;
-            color: #155724;
-            font-family: 'Courier New', monospace;
-        }
-        
-        sub { font-size: 12px; }
-        sup { font-size: 12px; }
-        
-        .legend {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            border: 1px solid #ccc;
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
-        }
-        
-        .legend-column {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .computed-variables {
-            background: #e8f4f8;
-            border: 2px solid #17a2b8;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .computed-variables h3 {
-            color: #0c5460;
-            margin: 0 0 15px 0;
-            font-size: 16px;
-        }
-        
-        .variables-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .variable-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .variable-symbol {
-            font-family: 'Times New Roman', serif;
-            font-weight: bold;
-            font-size: 16px;
-            color: #0c5460;
-            min-width: 40px;
-        }
-        
-        .variable-description {
-            color: #495057;
-        }
-        
-        .popup {
-            position: absolute;
-            background: white;
-            border: 2px solid #007acc;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            z-index: 1000;
-            font-size: 12px;
-            line-height: 1.3;
-            min-width: 200px;
-            max-width: 400px;
-            max-height: 300px;
-            overflow-y: auto;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.2s ease;
-        }
-        
-        .popup.visible {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-        
-        .popup h4 {
-            color: #007acc;
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 5px;
-        }
-        
-        .calculation-detail {
-            font-family: 'Courier New', monospace;
-            margin: 3px 0;
-            padding: 2px 5px;
-            background: #f8f9fa;
-            border-radius: 3px;
-        }
-        
-        .calculation-sum {
-            font-weight: bold;
-            color: #155724;
-            border-top: 1px solid #28a745;
-            padding-top: 5px;
-            margin-top: 5px;
-        }
-        
-        .more-button {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: #007acc;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            padding: 2px 6px;
-            font-size: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10;
-        }
-        
-        .more-button:hover {
-            background: #0056b3;
-            transform: scale(1.05);
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-overlay.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative;
-            min-width: 400px;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #007acc;
-            padding-bottom: 10px;
-        }
-        
-        .modal-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #007acc;
-        }
-        
-        .close-button {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        .close-button:hover {
-            background: #c82333;
-        }
-        
-        .calculation-detail {
-            font-family: 'Courier New', monospace;
-            margin: 5px 0;
-            padding: 5px 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            border-left: 3px solid #007acc;
-        }
-        
-        .calculation-sum {
-            font-weight: bold;
-            color: #155724;
-            border-top: 2px solid #28a745;
-            padding-top: 10px;
-            margin-top: 10px;
-            font-size: 16px;
-            background: #d4edda;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            border-radius: 3px;
-            margin-right: 8px;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 10px; padding: 25px; max-width: 90vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; min-width: 400px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--blue); padding-bottom: 10px; }
+        .modal-title { font-size: 18px; font-weight: bold; color: var(--blue); }
+        .close-button { background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .close-button:hover { background: #c82333; }
     </style>
 </head>
 <body>
@@ -506,6 +131,7 @@
             </div>
             <div class="control-group">
                 <label id="lx-display">l<sub>x</sub> (Overlevende ved alder: 50): <span id="lx-value">98780</span></label>
+                <button class="more-button" onclick="showMortalityTableModal()" style="position: static; margin-top: 5px;">Tabel...</button>
             </div>
         </div>
         
@@ -741,6 +367,60 @@
         function closeModal() {
             const modal = document.getElementById('calculationModal');
             modal.classList.remove('active');
+        }
+        
+        function showMortalityTableModal() {
+            const modal = document.getElementById('calculationModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Dansk Livstabel (l_x)';
+            body.innerHTML = generateMortalityTableContent();
+            
+            modal.classList.add('active');
+        }
+        
+        function generateMortalityTableContent() {
+            const currentAge = parseInt(document.getElementById('age').value);
+            const deferment = parseInt(document.getElementById('defer').value);
+            const deferredAge = currentAge + deferment;
+            
+            let content = `
+                <div style="margin-bottom: 15px; font-size: 12px; color: #666;">
+                    <span style="background: var(--yellow); padding: 2px 6px; border-radius: 3px; margin-right: 10px;">
+                        <strong>Nuværende alder (${currentAge})</strong>
+                    </span>
+                    <span style="background: #d1ecf1; padding: 2px 6px; border-radius: 3px;">
+                        <strong>Pensionsalder (${deferredAge})</strong>
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; font-family: var(--mono); font-size: 11px;">
+            `;
+            
+            for (let age = 0; age <= omega; age++) {
+                const survivors = danishLifeTable[age] || 0;
+                const bgColor = age === currentAge ? 'var(--yellow)' : age === deferredAge ? '#d1ecf1' : 'var(--gray)';
+                const borderStyle = age === currentAge || age === deferredAge ? 'border: 1px solid ' + (age === currentAge ? '#ffc107' : '#17a2b8') : '';
+                
+                content += `
+                    <div style="padding: 3px 5px; background: ${bgColor}; border-radius: 3px; text-align: center; ${borderStyle}; ${age === currentAge || age === deferredAge ? 'font-weight: bold;' : ''}" title="Alder ${age}: ${survivors.toLocaleString()} overlevende">
+                        ${age}: ${survivors.toLocaleString()}
+                    </div>
+                `;
+            }
+            
+            content += `
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 5px; font-size: 12px; color: #495057;">
+                    <strong>Livstabel Information:</strong><br>
+                    • <strong>Total aldersgrupper:</strong> ${omega + 1} (fra 0-${omega} år)<br>
+                    • <strong>Startpopulation:</strong> 100,000 personer ved fødsel<br>
+                    • <strong>Nuværende alder:</strong> ${currentAge} år - ${(danishLifeTable[currentAge] || 0).toLocaleString()} overlevende<br>
+                    • <strong>Pensionsalder:</strong> ${deferredAge} år - ${(danishLifeTable[deferredAge] || 0).toLocaleString()} overlevende
+                </div>
+            `;
+            
+            return content;
         }
         
         function getModalTitle(boxId) {
