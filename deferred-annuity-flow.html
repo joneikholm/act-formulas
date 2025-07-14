@@ -28,7 +28,7 @@
         .flow-container { flex: 1; position: relative; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .formula-chain, .value-chain { display: flex; justify-content: space-between; align-items: center; height: 140px; margin-bottom: 40px; position: relative; }
         .value-chain { margin-top: -12px; }
-        .formula-chain { margin-top: 20px; }
+        .formula-chain { margin-top: 40px; }
         
         .chain-box { border-radius: 8px; padding: 15px; min-width: 180px; text-align: center; position: relative; transition: all 0.2s ease; height: 100px; display: flex; align-items: center; justify-content: center; }
         .formula-box { border: 2px solid var(--blue); background: #f0f8ff; }
@@ -94,6 +94,19 @@
             <p>Følg beregningen fra venstre mod højre</p>
         </div>
         
+        <div class="computed-variables">
+            <h3>Hvad sker der her?</h3>
+            <p style="line-height: 1.6; color: #495057;">
+                Forestil dig, at du er 50 år og beslutter dig for at vente 15 år med at få pension. 
+                Denne formel beregner præcis, hvor meget din fremtidige månedlige pension er værd i dag - 
+                en slags "nutidsværdi" af noget, der først sker om mange år. 
+                Det er lidt som at spørge: "Hvis jeg skal have 1000 kr. om måneden fra jeg bliver 65, 
+                hvad er det så værd i dag?" Formlen tager højde for både renter og risikoen for, 
+                at du måske ikke når så langt (beklager den morbide realisme!). 
+                Jo højere rente og jo længere du venter, jo mindre bliver nutidsværdien.
+            </p>
+        </div>
+        
         <div class="controls">
             <div class="legend">
                 <div class="legend-column">
@@ -135,28 +148,6 @@
             </div>
         </div>
         
-        <div class="computed-variables">
-            <h3>Beregnede Størrelser</h3>
-            <div class="variables-grid">
-                <div class="variable-item">
-                    <div class="variable-symbol">v</div>
-                    <div class="variable-description">Diskonteringsfaktor per år<br><em>v = 1/(1+i)</em></div>
-                </div>
-                <div class="variable-item">
-                    <div class="variable-symbol">D<sub>x</sub></div>
-                    <div class="variable-description">Diskonterede overlevende ved alder x<br><em>D<sub>x</sub> = v<sup>x</sup> × l<sub>x</sub></em></div>
-                </div>
-                <div class="variable-item">
-                    <div class="variable-symbol">N<sub>x+n</sub></div>
-                    <div class="variable-description">Sum af diskonterede overlevende fra alder x+n<br><em>N<sub>x+n</sub> = Σ D<sub>y</sub> (y=x+n til 120)</em></div>
-                </div>
-                <div class="variable-item">
-                    <div class="variable-symbol"><sub>n</sub>|ä<sub>x</sub></div>
-                    <div class="variable-description">Opsat livrente værdi<br><em><sub>n</sub>|ä<sub>x</sub> = N<sub>x+n</sub> / D<sub>x</sub></em></div>
-                </div>
-            </div>
-        </div>
-        
         <div class="flow-container">
             
             <!-- Formula Chain -->
@@ -166,31 +157,51 @@
                     <div class="arrow"></div>
                 </div>
                 
-                <div class="chain-box formula-box" data-id="discount">
-                    <div class="math"><span class="symbol" data-var="v">v</span> = 1/(1+<span class="symbol" data-var="i">i</span>)</div>
-                    <div class="arrow"></div>
-                </div>
-                
-                <div class="chain-box formula-box" data-id="dx">
-                    <div class="math"><span class="symbol" data-var="D">D</span><sub><span class="symbol" data-var="x">x</span></sub> = <span class="symbol" data-var="v">v</span><sup><span class="symbol" data-var="x">x</span></sup> · <span class="symbol" data-var="l">l</span><sub><span class="symbol" data-var="x">x</span></sub></div>
-                    <div class="arrow"></div>
-                </div>
-                
-                <div class="chain-box formula-box" data-id="nxn">
-                    <div class="math">
-                        <span class="symbol" data-var="N">N</span><sub><span class="symbol" data-var="x">x</span>+<span class="symbol" data-var="n">n</span></sub> = 
-                        <span style="position: relative; display: inline-block; margin: 0 5px;">
-                            <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 11px;">120</span>
-                            <span style="font-size: 20px;">Σ</span>
-                            <span style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); font-size: 11px;">y=<span class="symbol" data-var="x">x</span>+<span class="symbol" data-var="n">n</span></span>
-                        </span>
-                        <span class="symbol" data-var="D">D</span><sub>y</sub>
+                <div style="position: relative;">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--dark); text-align: center; white-space: nowrap; font-weight: bold;">
+                        Diskonteringsfaktor per år
                     </div>
-                    <div class="arrow"></div>
+                    <div class="chain-box formula-box" data-id="discount">
+                        <div class="math"><span class="symbol" data-var="v">v</span> = 1/(1+<span class="symbol" data-var="i">i</span>)</div>
+                        <div class="arrow"></div>
+                    </div>
                 </div>
                 
-                <div class="chain-box formula-box" data-id="result">
-                    <div class="math"><sub><span class="symbol" data-var="n">n</span></sub>|ä<sub><span class="symbol" data-var="x">x</span></sub> = <span class="symbol" data-var="N">N</span><sub><span class="symbol" data-var="x">x</span>+<span class="symbol" data-var="n">n</span></sub>/<span class="symbol" data-var="D">D</span><sub><span class="symbol" data-var="x">x</span></sub></div>
+                <div style="position: relative;">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--dark); text-align: center; white-space: nowrap; font-weight: bold;">
+                        Diskonterede overlevende ved alder x
+                    </div>
+                    <div class="chain-box formula-box" data-id="dx">
+                        <div class="math"><span class="symbol" data-var="D">D</span><sub><span class="symbol" data-var="x">x</span></sub> = <span class="symbol" data-var="v">v</span><sup><span class="symbol" data-var="x">x</span></sup> · <span class="symbol" data-var="l">l</span><sub><span class="symbol" data-var="x">x</span></sub></div>
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div style="position: relative;">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--dark); text-align: center; white-space: nowrap; font-weight: bold;">
+                        Sum af diskonterede overlevende fra alder x+n
+                    </div>
+                    <div class="chain-box formula-box" data-id="nxn">
+                        <div class="math">
+                            <span class="symbol" data-var="N">N</span><sub><span class="symbol" data-var="x">x</span>+<span class="symbol" data-var="n">n</span></sub> = 
+                            <span style="position: relative; display: inline-block; margin: 0 5px;">
+                                <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 11px;">120</span>
+                                <span style="font-size: 20px;">Σ</span>
+                                <span style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); font-size: 11px;">y=<span class="symbol" data-var="x">x</span>+<span class="symbol" data-var="n">n</span></span>
+                            </span>
+                            <span class="symbol" data-var="D">D</span><sub>y</sub>
+                        </div>
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                
+                <div style="position: relative;">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--dark); text-align: center; white-space: nowrap; font-weight: bold;">
+                        Opsat livrente værdi
+                    </div>
+                    <div class="chain-box formula-box" data-id="result">
+                        <div class="math"><sub><span class="symbol" data-var="n">n</span></sub>|ä<sub><span class="symbol" data-var="x">x</span></sub> = <span class="symbol" data-var="N">N</span><sub><span class="symbol" data-var="x">x</span>+<span class="symbol" data-var="n">n</span></sub>/<span class="symbol" data-var="D">D</span><sub><span class="symbol" data-var="x">x</span></sub></div>
+                    </div>
                 </div>
             </div>
             
